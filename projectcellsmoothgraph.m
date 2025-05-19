@@ -49,7 +49,7 @@ rxPowerSmooth = F(X, Y);
 rxPowerSmooth = fillmissing(rxPowerSmooth, 'nearest');
 
 
-figure;
+figure(1);
 
 surf(X, Y, rxPowerSmooth, 'EdgeColor', 'none');
 colormap jet;
@@ -102,12 +102,29 @@ peak_lat = lat_grid(peak_row);
 fprintf('Estimated Tower Centroid:\nLongitude: %.6f\nLatitude: %.6f\n', centroid_lon, centroid_lat);
 fprintf('Nearest Peak in Red Zone:\nLongitude: %.6f\nLatitude: %.6f\n', peak_lon, peak_lat);
 
-figure;
-surf(X, Y, rxPowerSmooth, 'EdgeColor', 'none');
+figure(2);
+mapImage = imread('map2.png'); 
+[imgH, imgW, ~] = size(mapImage);
+fprintf('Image size: %d x %d\n', imgW, imgH);
+
+
+
+% Create lat/lon grid for the image
+[lon_img, lat_img] = meshgrid(linspace(lon_min, lon_max, imgW), linspace(lat_min, lat_max, imgH));
+
+% Display map image as a texture-mapped surface at Z = -200
+surface(lon_img, lat_img, -180 * ones(size(lat_img)), flipud(mapImage), ...
+    'FaceColor', 'texturemap', 'EdgeColor', 'none');
+hold on;
+
+heatmap_surf = surf(X, Y, rxPowerSmooth, 'EdgeColor', 'none');
 colormap jet;
 colorbar;
 title('Smooth Rx Power Heatmap with Estimated Tower Location');
 xlabel('Longitude'); ylabel('Latitude'); zlabel('Rx Power (dBm)');
+heatmap_surf.FaceAlpha = 0.4;
+caxis([-110 -60]);  % adjust as needed to fit your Rx data range
+
 view(2);
 hold on;
 
